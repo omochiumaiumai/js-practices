@@ -15,7 +15,7 @@ const first_day_of_week = calendar_date.day();
 const last_day_of_month = calendar_date.endOf("month").date();
 
 let week = "";
-for (let cnt = 0; cnt < first_day_of_week; cnt++) {
+for (let count = 0; count < first_day_of_week; count++) {
   week += "   ";
 }
 for (let day = 1; day <= last_day_of_month; day++) {
