@@ -19,12 +19,8 @@ for (let count = 0; count < first_day_of_week; count++) {
   week += "   ";
 }
 for (let day = 1; day <= last_day_of_month; day++) {
-  if (day < 10) {
-    week += ` ${day} `;
-  } else {
-    week += `${day} `;
-  }
-
+  week += day.toString().padStart(2, " ");
+  week += " ";
   if ((first_day_of_week + day) % 7 === 0) {
     console.log(week);
     week = "";
