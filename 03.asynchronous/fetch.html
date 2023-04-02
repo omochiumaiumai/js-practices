@@ -10,7 +10,7 @@
     <script>
       async function fetchHtml(url) {
         const response = await fetch(url);
-        let html = await response.text();
+        const html = await response.text();
         console.log(html);
       }
       fetchHtml("https://bootcamp.fjord.jp/");
