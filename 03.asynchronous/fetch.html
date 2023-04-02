@@ -8,12 +8,12 @@
   </head>
   <body>
     <script>
-      async function fetch_html(url) {
+      async function fetchHtml(url) {
         const response = await fetch(url);
         let html = await response.text();
         console.log(html);
       }
-      fetch_html("https://bootcamp.fjord.jp/");
+      fetchHtml("https://bootcamp.fjord.jp/");
     </script>
   </body>
 </html>
