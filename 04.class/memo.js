@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require("fs");
-const enquirer = require("enquirer");
+const { Select } = require("enquirer");
 const { program } = require("commander");
 
 class myMemo {
@@ -48,7 +48,7 @@ class myMemo {
   }
 
   reference() {
-    fs.readFile("memo.json", "utf8", (error, fileData) => {
+    fs.readFile("memo.json", "utf8", async (error, fileData) => {
       if (error) {
         console.error("Memo does not exist.");
         return;
@@ -56,26 +56,24 @@ class myMemo {
 
       const memos = JSON.parse(fileData);
 
-      const prompt = new enquirer.Select({
+      const prompt = new Select({
         message: "Choose a memo you want to see:",
         choices: memos.map((memo) => memo.text.split("\n")[0]),
       });
 
-      prompt
-        .run()
-        .then((answer) => {
-          const targetMemo = memos.find(
-            (memo) => memo.text.split("\n")[0] === answer
-          );
-          console.log(targetMemo.text);
-        })
-        .catch((error) => {
-          console.error("An error occurred:", error);
-        });
+      try {
+        const answer = await prompt.run();
+        const targetMemo = memos.find(
+          (memo) => memo.text.split("\n")[0] === answer
+        );
+        console.log(targetMemo.text);
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
     });
   }
   delete() {
-    fs.readFile("memo.json", "utf8", (error, fileData) => {
+    fs.readFile("memo.json", "utf8", async (error, fileData) => {
       if (error) {
         console.error("Memo does not exist.");
         return;
@@ -83,30 +81,26 @@ class myMemo {
 
       const memos = JSON.parse(fileData);
 
-      const prompt = new enquirer.Select({
+      const prompt = new Select({
         message: "Please select the memo you wish to delete:",
         choices: memos.map((memo) => memo.text.split("\n")[0]),
       });
 
-      prompt
-        .run()
-        .then((answer) => {
-          const targetMemoIndex = memos.findIndex(
-            (memo) => memo.text.split("\n")[0] === answer
-          );
-          if (targetMemoIndex !== -1) {
-            memos.splice(targetMemoIndex, 1);
-            fs.writeFile("memo.json", JSON.stringify(memos), (error) => {
-              if (error) throw error;
-              console.log("Memo deleted.");
-            });
-          } else {
-            console.error("Cannot find the specified memo.");
-          }
-        })
-        .catch((error) => {
-          console.error("An error occurred:", error);
-        });
+      try {
+        const answer = await prompt.run();
+        const targetMemoIndex = memos.findIndex(
+          (memo) => memo.text.split("\n")[0] === answer
+        );
+        if (targetMemoIndex !== -1) {
+          memos.splice(targetMemoIndex, 1);
+          await fs.promises.writeFile("memo.json", JSON.stringify(memos));
+          console.log("Memo deleted.");
+        } else {
+          console.error("Cannot find the specified memo.");
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
     });
   }
 }
