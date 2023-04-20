@@ -5,7 +5,7 @@ const { Select } = require("enquirer");
 const { program } = require("commander");
 
 class myMemo {
-  create() {
+  create(filepath) {
     let inputStrings = "";
 
     process.stdin.on("data", (chunk) => {
@@ -13,17 +13,22 @@ class myMemo {
     });
 
     process.stdin.on("end", () => {
-      fs.readFile("memo.json", "utf8", (error, fileData) => {
+      fs.readFile(filepath, "utf8", (error, fileData) => {
         if (error) {
-          const memos = [{ text: inputStrings.trim() }];
-          fs.writeFile("memo.json", JSON.stringify(memos), (error) => {
-            if (error) throw error;
-            console.log("New memo added.");
-          });
+          if (error.code === "ENOENT") {
+            console.error("Error: File not found. Creating new file...");
+            const memos = [{ text: inputStrings.trim() }];
+            fs.writeFile(filepath, JSON.stringify(memos), (error) => {
+              if (error) throw error;
+              console.log("New memo added.");
+            });
+          } else {
+            console.error(`Error: ${error.message}`);
+          }
         } else {
           let memos = JSON.parse(fileData);
           memos.push({ text: inputStrings.trim() });
-          fs.writeFile("memo.json", JSON.stringify(memos), (error) => {
+          fs.writeFile(filepath, JSON.stringify(memos), (error) => {
             if (error) throw error;
             console.log("New memo added.");
           });
@@ -32,8 +37,8 @@ class myMemo {
     });
   }
 
-  list() {
-    fs.readFile("memo.json", "utf8", (error, fileData) => {
+  list(filepath) {
+    fs.readFile(filepath, "utf8", (error, fileData) => {
       if (error) {
         console.error("Memo does not exist.");
         return;
@@ -47,8 +52,8 @@ class myMemo {
     });
   }
 
-  reference() {
-    fs.readFile("memo.json", "utf8", async (error, fileData) => {
+  reference(filepath) {
+    fs.readFile(filepath, "utf8", async (error, fileData) => {
       if (error) {
         console.error("Memo does not exist.");
         return;
@@ -72,8 +77,8 @@ class myMemo {
       }
     });
   }
-  delete() {
-    fs.readFile("memo.json", "utf8", async (error, fileData) => {
+  delete(filepath) {
+    fs.readFile(filepath, "utf8", async (error, fileData) => {
       if (error) {
         console.error("Memo does not exist.");
         return;
@@ -93,7 +98,7 @@ class myMemo {
         );
         if (targetMemoIndex !== -1) {
           memos.splice(targetMemoIndex, 1);
-          await fs.promises.writeFile("memo.json", JSON.stringify(memos));
+          await fs.promises.writeFile(filepath, JSON.stringify(memos));
           console.log("Memo deleted.");
         } else {
           console.error("Cannot find the specified memo.");
@@ -115,12 +120,13 @@ program
 
 const options = program.opts();
 
+const filepath = "memo.json";
 if (options.list) {
-  memo.list();
+  memo.list(filepath);
 } else if (options.reference) {
-  memo.reference();
+  memo.reference(filepath);
 } else if (options.delete) {
-  memo.delete();
+  memo.delete(filepath);
 } else {
-  memo.create();
+  memo.create(filepath);
 }
