@@ -16,7 +16,7 @@ class myMemo {
       fs.readFile(filepath, "utf8", (error, fileData) => {
         if (error) {
           if (error.code === "ENOENT") {
-            console.error("Error: File not found. Creating new file...");
+            console.log(error.message);
             const memos = [{ text: inputStrings.trim() }];
             fs.writeFile(filepath, JSON.stringify(memos), (error) => {
               if (error) throw error;
